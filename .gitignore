@@ -1,5 +1,10 @@
 __pycache__/
 *.py[cod]
-venv/
+*$py.class
+*.so
 .env
-static/images/watermarked.png
+venv/
+env/
+static/uploads/*
+!static/uploads/.gitkeep
+*.tar

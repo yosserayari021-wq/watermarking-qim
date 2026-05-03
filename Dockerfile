@@ -1,23 +1,23 @@
-# 1. Utiliser une version légère de Python
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# 2. Installer les bibliothèques système nécessaires pour OpenCV
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=5000
+
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. Définir le dossier de travail dans le container
 WORKDIR /app
 
-# 4. Copier les fichiers du projet
-COPY . /app
-
-# 5. Installer les bibliothèques Python
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 6. Exposer le port que Flask utilise
+COPY . .
+
+RUN mkdir -p static/uploads
+
 EXPOSE 5000
 
-# 7. Lancer l'application avec Gunicorn (plus robuste pour le web)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["python", "app.py"]

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: watermarking-qim
+    runtime: docker
+    repo: https://github.com/yosser-ayari/watermarking-qim
+    branch: main
+    plan: free
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: FLASK_ENV
+        value: "production"
+    healthCheckPath: /health
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
