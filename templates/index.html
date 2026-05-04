@@ -36,8 +36,16 @@
             background: #f0f4ff;
             border-left: 4px solid #667eea;
             padding: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-radius: 5px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
         }
         .upload-section {
             text-align: center;
@@ -85,14 +93,20 @@
             text-align: center;
         }
         .metric-card h3 {
-            font-size: 0.9em;
+            font-size: 0.85em;
             margin-bottom: 10px;
             opacity: 0.9;
         }
-        .metric-card .value { font-size: 2em; font-weight: bold; }
+        .metric-card .value { font-size: 1.8em; font-weight: bold; }
+        .metric-card .explanation {
+            font-size: 0.75em;
+            margin-top: 8px;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
         .images-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
@@ -105,13 +119,25 @@
         .image-card h4 {
             color: #333;
             margin-bottom: 10px;
-            font-size: 1em;
+            font-size: 0.95em;
         }
         .image-card img {
             max-width: 100%;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .download-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: background 0.3s;
+        }
+        .download-btn:hover { background: #218838; }
         .loading { display: none; text-align: center; padding: 40px; }
         .loading.show { display: block; }
         .spinner {
@@ -136,8 +162,8 @@
             font-size: 0.9em;
         }
         .watermark-info {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
             border-radius: 10px;
             padding: 15px;
             margin-top: 20px;
@@ -145,20 +171,52 @@
             font-size: 0.85em;
             overflow-x: auto;
         }
+        .ber-explanation {
+            background: #f3e5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .ber-explanation h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+        .ber-explanation table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .ber-explanation th, .ber-explanation td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .ber-explanation th {
+            background: #667eea;
+            color: white;
+        }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="container">
         <h1>🔒 Tatouage Numerique QIM-DCT</h1>
         <p class="subtitle">L2-IRS | ISI Ariana | Securite des Medias Digitaux 2025/2026</p>
-        
+
         <div class="info-box">
             <strong>Principe :</strong> Ce systeme insere un watermark invisible dans une image 
             via la <strong>Quantization Index Modulation (QIM)</strong> dans le domaine 
             <strong>DCT 2D</strong>. Le watermark survit aux attaques (bruit, compression JPEG) 
             et permet de prouver la propriete intellectuelle.
         </div>
-        
+
+        <div class="warning-box">
+            <strong>⚠️ Note :</strong> Les images sont converties en <strong>niveaux de gris</strong> pour le traitement. 
+            Le watermarking QIM-DCT fonctionne sur une seule couche (luminance). 
+            Pour les images couleur, le traitement se fait generalement sur chaque canal RGB separement.
+        </div>
+
         <div class="upload-section" id="dropZone">
             <input type="file" id="fileInput" accept="image/*">
             <label for="fileInput" class="upload-btn">📤 Choisir une image</label>
@@ -167,31 +225,67 @@
                 <small>Formats acceptes : JPG, PNG, BMP (max 16MB)</small>
             </p>
         </div>
-        
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Traitement en cours... Insertion du watermark + simulations d'attaques</p>
         </div>
-        
+
         <div class="results" id="results">
-            <h2 style="text-align: center; margin-bottom: 20px; color: #333;">📊 Resultats du Tatouage</h2>
+            <h2 style="text-align: center; margin-bottom: 20px; color: #333;">
+                📊 Resultats du Tatouage
+            </h2>
+
             <div class="metrics" id="metrics"></div>
+
+            <div class="ber-explanation">
+                <h3>📖 Guide d'interpretation des metriques</h3>
+                <table>
+                    <tr>
+                        <th>Metrique</th>
+                        <th>Signification</th>
+                        <th>Interpretation</th>
+                    </tr>
+                    <tr>
+                        <td><strong>PSNR</strong></td>
+                        <td>Peak Signal-to-Noise Ratio</td>
+                        <td>Qualite visuelle. > 40 dB = invisibilite excellente</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BER</strong></td>
+                        <td>Bit Error Rate (Taux d'erreur binaire)</td>
+                        <td>Pourcentage de bits faux. 0% = extraction parfaite</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BER < 50%</strong></td>
+                        <td>Watermark partiellement recupere</td>
+                        <td>On peut encore prouver la propriete intellectuelle</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BER > 50%</strong></td>
+                        <td>Watermark detruit</td>
+                        <td>Le watermark est devenu aleatoire, inutilisable</td>
+                    </tr>
+                </table>
+            </div>
+
             <div class="images-grid" id="imagesGrid"></div>
+
             <div class="watermark-info" id="watermarkInfo"></div>
         </div>
-        
+
         <div class="footer">
             <p>Projet realise dans le cadre du cours <strong>Securite des Medias Digitaux</strong></p>
             <p>Technologies : Python, Flask, OpenCV, DCT, QIM | Deploiement : Docker, Render</p>
         </div>
     </div>
-    
+
     <script>
         const fileInput = document.getElementById('fileInput');
         const dropZone = document.getElementById('dropZone');
         const loading = document.getElementById('loading');
         const results = document.getElementById('results');
-        
+
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.style.background = '#f0f4ff';
@@ -207,7 +301,7 @@
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) handleFile(e.target.files[0]);
         });
-        
+
         function handleFile(file) {
             if (!file.type.startsWith('image/')) {
                 alert('Veuillez selectionner une image');
@@ -217,7 +311,7 @@
             formData.append('image', file);
             loading.classList.add('show');
             results.classList.remove('show');
-            
+
             fetch('/upload', { method: 'POST', body: formData })
             .then(response => response.json())
             .then(data => {
@@ -230,29 +324,30 @@
                 alert('Erreur: ' + error.message);
             });
         }
-        
+
         function displayResults(data) {
             document.getElementById('metrics').innerHTML = 
-                '<div class="metric-card"><h3>PSNR (Invisibilite)</h3><div class="value">' + data.psnr + ' dB</div></div>' +
-                '<div class="metric-card"><h3>BER Sans Attaque</h3><div class="value">' + data.ber_clean + '%</div></div>' +
-                '<div class="metric-card"><h3>BER Bruit Gaussien</h3><div class="value">' + data.ber_noisy + '%</div></div>' +
-                '<div class="metric-card"><h3>BER JPEG Q=50</h3><div class="value">' + data.ber_jpeg50 + '%</div></div>' +
-                '<div class="metric-card"><h3>BER JPEG Q=20</h3><div class="value">' + data.ber_jpeg20 + '%</div></div>';
-            
+                '<div class="metric-card"><h3>PSNR (Invisibilite)</h3><div class="value">' + data.psnr + ' dB</div><div class="explanation">> 40 dB = excellente qualite<br>L'image tatouee est visuellement identique</div></div>' +
+                '<div class="metric-card"><h3>BER Sans Attaque</h3><div class="value">' + data.ber_clean + '%</div><div class="explanation">0% = extraction parfaite<br>Le watermark est completement intact</div></div>' +
+                '<div class="metric-card"><h3>BER Bruit Gaussien</h3><div class="value">' + data.ber_noisy + '%</div><div class="explanation">Apres ajout de bruit<br>< 50% = watermark encore lisible</div></div>' +
+                '<div class="metric-card"><h3>BER JPEG Q=50</h3><div class="value">' + data.ber_jpeg50 + '%</div><div class="explanation">Apres compression JPEG<br>Plus bas = plus robuste</div></div>' +
+                '<div class="metric-card"><h3>BER JPEG Q=20</h3><div class="value">' + data.ber_jpeg20 + '%</div><div class="explanation">Compression agressive<br>Watermark partiellement detruit</div></div>';
+
             document.getElementById('imagesGrid').innerHTML = 
-                '<div class="image-card"><h4>Image Originale</h4><img src="data:image/png;base64,' + data.original + '" alt="Originale"></div>' +
-                '<div class="image-card"><h4>Image Tatouee</h4><img src="data:image/png;base64,' + data.watermarked + '" alt="Tatouee"></div>' +
-                '<div class="image-card"><h4>+ Bruit Gaussien</h4><img src="data:image/png;base64,' + data.noisy + '" alt="Bruitee"></div>' +
-                '<div class="image-card"><h4>+ JPEG Q=50</h4><img src="data:image/png;base64,' + data.jpeg50 + '" alt="JPEG50"></div>' +
-                '<div class="image-card"><h4>+ JPEG Q=20</h4><img src="data:image/png;base64,' + data.jpeg20 + '" alt="JPEG20"></div>';
-            
+                '<div class="image-card"><h4>🖼️ Image Originale</h4><img src="data:image/png;base64,' + data.original + '" alt="Originale"></div>' +
+                '<div class="image-card"><h4>🔒 Image Tatouee</h4><img src="data:image/png;base64,' + data.watermarked + '" alt="Tatouee"><a href="/download/' + data.filename + '" class="download-btn">⬇️ Telecharger</a></div>' +
+                '<div class="image-card"><h4>📡 + Bruit Gaussien</h4><img src="data:image/png;base64,' + data.noisy + '" alt="Bruitee"></div>' +
+                '<div class="image-card"><h4>🗜️ + JPEG Q=50</h4><img src="data:image/png;base64,' + data.jpeg50 + '" alt="JPEG50"></div>' +
+                '<div class="image-card"><h4>🗜️ + JPEG Q=20</h4><img src="data:image/png;base64,' + data.jpeg20 + '" alt="JPEG20"></div>';
+
             var wm = data.watermark.slice(0, 50).join('') + '...';
             var ex = data.extracted_clean.slice(0, 50).join('') + '...';
             document.getElementById('watermarkInfo').innerHTML = 
-                '<strong>Watermark original (50 premiers bits):</strong> ' + wm + '<br>' +
-                '<strong>Watermark extrait (50 premiers bits):</strong> ' + ex + '<br>' +
-                '<strong>Longueur totale:</strong> ' + data.watermark.length + ' bits';
-            
+                '<strong>✅ Watermark original (50 premiers bits):</strong> ' + wm + '<br>' +
+                '<strong>✅ Watermark extrait (50 premiers bits):</strong> ' + ex + '<br>' +
+                '<strong>📏 Longueur totale:</strong> ' + data.watermark.length + ' bits<br>' +
+                '<strong>🔐 Cle secrete:</strong> seed=42 (pour la selection pseudo-aleatoire des coefficients DCT)';
+
             results.classList.add('show');
         }
     </script>

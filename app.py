@@ -1,9 +1,4 @@
-"""
-Application web Flask pour le tatouage numerique QIM-DCT
-L2-IRS - ISI Ariana - 2025/2026
-"""
-
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import os
 import numpy as np
 import cv2
@@ -206,8 +201,17 @@ def upload():
         'ber_jpeg50': round(float(qim.calculate_ber(watermark, ext_jpeg50)), 2),
         'ber_jpeg20': round(float(qim.calculate_ber(watermark, ext_jpeg20)), 2),
         'watermark': watermark.tolist(),
-        'extracted_clean': ext_clean.tolist()
+        'extracted_clean': ext_clean.tolist(),
+        'filename': filename
     })
+
+
+@app.route('/download/<filename>')
+def download(filename):
+    watermarked_path = os.path.join(UPLOAD_FOLDER, 'watermarked_' + filename)
+    if os.path.exists(watermarked_path):
+        return send_file(watermarked_path, as_attachment=True, download_name='watermarked_' + filename)
+    return jsonify({'error': 'Fichier non trouve'}), 404
 
 
 @app.route('/health')
