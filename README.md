@@ -51,4 +51,4 @@ pip install -r requirements.txt
 python app.py
 
 # 4. Ouvrir dans le navigateur
-# http://localhost:5000
+# http://localhost:5000x
